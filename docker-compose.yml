@@ -7,39 +7,11 @@ services:
         source: timescale-volume
         target: /var/lib/postgresql/data
         read_only: false
-      # Custom postgresql.conf file will be mounted (see command: as well)
-      - type: bind
-        source: ./postgresql_custom.conf
-        target: /postgresql_custom.conf
-        read_only: false
-    env_file: .env
-    command: ["-c", "config_file=/postgresql_custom.conf"]
+    environment:
+      POSTGRES_PASSWORD: "password"
     ports: 
       - 0.0.0.0:5432:5432
-    networks:
-      traefik-public:
-    deploy:
-      # Either global (exactly one container per physical node) or
-      # replicated (a specified number of containers). The default is replicated
-      mode: replicated
-      # For stateless applications using "replicated" mode,
-      # the total number of replicas to create
-      replicas: 1
-      placement:
-        constraints:
-          # Since this is for the stateful database,
-          # only run it on the swarm manager, not on workers
-          - "node.role==manager"
-      restart_policy:
-        condition: on-failure
 
-# Uses a named volume to persist our data
 volumes:
-  timescale-db-volume:
-    external: true
-
-networks:
-  # Use the previously created public network "traefik-public", shared with other
-  # services that need to be publicly available via this Traefik
-  traefik-public:
-    external: true
+    timescale-volume:
+        driver: local
