@@ -2,16 +2,23 @@ version: '3.7'
 services:
   timescale:
     image: timescale/timescaledb:latest-pg12
-    volumes: 
+    volumes:
       - type: volume
         source: timescale-volume
         target: /var/lib/postgresql/data
         read_only: false
     environment:
       POSTGRES_PASSWORD: "password"
-    ports: 
+    ports:
       - 0.0.0.0:5432:5432
 
+  web:
+    build: .
+    ports:
+      - "8000:80"
+    depends_on:
+      - db
+
 volumes:
-    timescale-volume:
-        driver: local
+  timescale-volume:
+    driver: local
